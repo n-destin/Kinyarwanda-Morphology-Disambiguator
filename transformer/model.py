@@ -22,10 +22,10 @@ class PositionalEmbddings(nn.Module):
         self.position_embeddings[:, 1::2] = torch.cos((self.positions) / 1000 ** (self.indices // self.dimesion))
     def forward(self, x):
         '''
-        
+        dimsensions: 
+            (batch_size, sequence_length, dimension)
         '''
         batch_size, seq_length = x.size()
-
         return self.position_embeddings[:seq_length, :]
                 
 class TokenEmbeddings(nn.Module):
@@ -52,7 +52,7 @@ class TransformerEmbedding(nn.Module):
             return self.dropout_final(token_embeddings  + position_embeddings)
 
 class Attention(nn.Module):
-    def __init__(self, query, key, value, dimension):
+    def __init__(self):
         super.__init__()
         '''
         Input dimemsions :
@@ -61,10 +61,11 @@ class Attention(nn.Module):
             2 : sequence_length
             3 : token embeddings dimension
         '''
-        transposed_keys = key.transpose(2, 3)
 
-        def forward(self):
-            return torch.sigmoid(torch.matmul(self.quey, self.key / math.sqrt(self.dimesion))) * self.value
+        def forward(self, queries, keys, values, dimension):
+            transposed_keys = keys.transpose(2, 3) # dimensions [batch_size, num_heads, emb_dim., seq_length]
+            attention_score = torch.softmax((queries @ transposed_keys) / math.sqrt(dimension))
+
         
 
 
