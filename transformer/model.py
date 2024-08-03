@@ -2,8 +2,6 @@
 @autheor: Destin Niyomufasha. Transformer model
 July 2024 
 '''
-
-
 import torch 
 import torchvision
 from torch import nn
@@ -11,7 +9,7 @@ import numpy as np
 import math
 
 
-class Positional_encoder(nn.Module):
+class PositionalEmbddings(nn.Module):
     '''
     1000 can be changed
     '''
@@ -30,27 +28,40 @@ class Positional_encoder(nn.Module):
 
         return self.position_embeddings[:seq_length, :]
                 
-class Embedding(nn.Module):
+class TokenEmbeddings(nn.Module):
     '''
     Returns an embedding matrix
     '''
-    def __init__(self, vocab_size, dimension, dropout):
-        super.__init__()
-        self.vocab_size = vocab_size
-        self.dimension = dimension
-        self.dropout = nn.Dropout(dropout)
-        self.embeddings = nn.Embeddings(self.vocab_size, self.dimension)
+    def __init__(self, vocab_size, dimension):
+        super(TokenEmbeddings, self).__init__(vocab_size, dimension)
 
-        def forward(index):
-            return self.dropout(self.embeddings[index])
+
+
+class TransformerEmbedding(nn.Module):
+    def __init__(self, vocab_size, dimension, x, max_sequence, dropout):
+        self.TokenEmbedding = TokenEmbeddings(vocab_size, dimension)
+        self.PositionalEmbedding = PositionalEmbddings(max_sequence, dimension)
+        self.dropout_final = nn.Dropout(dropout)
+        self.dropout_token = nn.Dropout(dropout)
+
+        def forward(self, x):
+
+            token_embeddings = self.TokenEmbeddings(x)
+            position_embeddings = self.dropout_pos(self.PositionalEmbeddings(x))
+            
+            return self.dropout_final(token_embeddings  + position_embeddings)
 
 class Attention(nn.Module):
     def __init__(self, query, key, value, dimension):
         super.__init__()
-        self.query =  query
-        self.key = key
-        self.value = value
-        self.dimension = dimension
+        '''
+        Input dimemsions :
+            0 : batch_size
+            1 : num_heads
+            2 : sequence_length
+            3 : token embeddings dimension
+        '''
+        transposed_keys = key.transpose(2, 3)
 
         def forward(self):
             return torch.sigmoid(torch.matmul(self.quey, self.key / math.sqrt(self.dimesion))) * self.value
@@ -63,14 +74,10 @@ class MultiHeadAttention(nn.Module):
     '''
     def __init__(self, num_heads, dimension, query, key, value):
         super.__init__()
-        self.num_heads = num_heads
-        self.dimension = dimension
-        self.query = query
-        self.key = key
-        self.value = value
-        self.query_projection = nn.Linear(self.dimension, self.dimension)
-        self.key_projection = nn.Linear(self.dimension, self.dimension)
-        self.value_projection = nn.Linear(self.dimension, self.dimension)
+
+        self.query_projection = nn.Linear(dimension, dimension)
+        self.key_projection = nn.Linaer(dimension, dimension)
+        self.value_projection = nn.Linear(dimension, dimension)
         self.attention_layer = Attention()
 
     def forward(self):
@@ -95,4 +102,3 @@ class Encoder(nn.Module):
         self.vocal_size = vocab_size
         self.sequence = sequence
         self.embedding = Embedding(self.vocab_size, self.dimension)
-
