@@ -167,6 +167,26 @@ class Encoder(nn.Module):
     
 
 
-class Decoder(nn.Module):
-    def __init__():
-        super.__init__()
+class Decoder(nn.Encoder):
+    def __init__(self, max_sequence_length, dimension, vocab_size, hidden, dropout):
+        super.__init__(max_sequence_length, dimension, vocab_size, hidden, dropout)
+        self.normalize_three =  LayerNorm(dimension, 1e-12)
+        self.input_attention = MultiHeadAttention(dimension)
+    def forward(self, encoder_output, labels_input):
+        embeddings = self.transformer_embeddings(labels_input)
+        to_concat = self.normalize_three(self.input_attention(embeddings)) + embeddings
+        x = to_concat + encoder_output
+        output = self.normalize1(self.attention(x)) + x 
+        output_ = self.normalize2(self.feedforward(output)) + output
+
+        return output_
+    
+
+
+    class Transformer(nn.Module):
+        def __init__(self, max_sequence_length, dimension, vocab_size, hidden, dropout):
+            super.__init__()
+            self.encoder = Encoder(max_sequence_length, dimension, vocab_size, hidden, dropout)
+            self.decoder = Decoder(max_sequence_length, dimension, vocab_size, hidden, dropout)
+
+        def forward()
