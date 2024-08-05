@@ -168,4 +168,5 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    
+    def __init__():
+        super.__init__()
