@@ -9,7 +9,7 @@ import numpy as np
 import math
 
 
-class PositionalEmbddings(nn.Module):
+class PositionalEmbddings(nn.Module):p
     '''
     1000 can be changed
     '''
@@ -151,35 +151,49 @@ class Encoder(nn.Module):
     def __init__(self, max_sequence_length, dimension, vocab_size, hidden, dropout):
         super.__init__()
         self.transformer_embedding = TransformerEmbedding(vocab_size,dimension, max_sequence_length, dropout)
-        self.normalize1 = LayerNorm(dimension, 1e-12)
-        self.normalize2 = LayerNorm(dimension, 1e-12)
+        self.norm1 = LayerNorm(dimension, 1e-12)
+        self.norm2 = LayerNorm(dimension, 1e-12)
         self.attention = MultiHeadAttention(dimension)
         self.feedforward = positionwiseFeedforward(dimension, hidden, dropout)
 
     def forward(self, x):
         embeddings = self.transformer_embedding(x)
         attention = self.attention(embeddings)
-        normalized_embeddings = self.normalize1(attention) + embeddings   
-        output = self.normalize2(self.feedforward(normalized_embeddings) )+ normalized_embeddings
-
+        normalized_embeddings = self.norm1(attention) + embeddings   
+        output = self.norm2(self.feedforward(normalized_embeddings) )+ normalized_embeddings
 
         return output
     
 
 
-class Decoder(nn.Encoder):
+class Decoder(nn.Module):
     def __init__(self, max_sequence_length, dimension, vocab_size, hidden, dropout):
-        super.__init__(max_sequence_length, dimension, vocab_size, hidden, dropout)
-        self.normalize_three =  LayerNorm(dimension, 1e-12)
-        self.input_attention = MultiHeadAttention(dimension)
-    def forward(self, encoder_output, labels_input):
-        embeddings = self.transformer_embeddings(labels_input)
-        to_concat = self.normalize_three(self.input_attention(embeddings)) + embeddings
-        x = to_concat + encoder_output
-        output = self.normalize1(self.attention(x)) + x 
-        output_ = self.normalize2(self.feedforward(output)) + output
+        super(Decoder, self).__init__() 
+        self.norm1 =  LayerNorm(dimension, 1e-12)
+        self.norm2 = LayerNorm(dimension, 1e-12)
+        self.norm3 = LayerNorm(dimension, 1e-12)
 
-        return output_
+        self.input_attention = MultiHeadAttention(dimension)
+        self.encoder_attention = MultiHeadAttention(dimension)
+        self.feedforward = self.feedforward(dimension, hidden,dropout)
+
+        self.transformer_embeddings_decoder = TransformerEmbedding(vocab_size, dimension, max_sequence_length)
+        self.projecttion_layer = nn.Linear(dimension, dimension)
+
+    def forward(self, encoder_output, decoder_input):
+
+        x = self.transformer_embeddings_decoder(decoder_input)
+        encoder_attention_score = self.encoder_attention(x, x, x)
+        x_transformed = self.norm1(x + encoder_attention_score)
+
+        enc_ = encoder_output  + x_transformed
+
+        encoder_transformed = self.encoder_attention(enc_, enc_, enc_)
+        x_ = self.norm2(encoder_transformed + x_transformed)
+
+        x_output = self.norm3(self.feedforward(x_) + x_)
+
+        return nn.softmax(self.projecttion_layer(x_output))
     
 
 
