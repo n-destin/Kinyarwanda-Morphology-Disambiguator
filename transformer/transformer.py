@@ -164,8 +164,8 @@ class EncoderLayer(nn.Module):
         self.attention = MultiHeadAttention(dimension, num_heads)
         self.feedforward = positionwiseFeedforward(dimension, hidden, dropout)
 
-    def forward(self, x):
-        attention = self.attention(x)
+    def forward(self, x, mask):
+        attention = self.attention(x, mask)
         normalized_embeddings = self.norm1(attention + x)   
         output = self.norm2(self.feedforward(normalized_embeddings) + normalized_embeddings)
 
