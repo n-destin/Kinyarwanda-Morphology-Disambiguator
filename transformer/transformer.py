@@ -1,8 +1,7 @@
 '''
 @autheor: Destin Niyomufasha. Intelligence and Signal Processing Lab. 
 @KinyaBERT
-July 2024 
-
+July 2024
 '''
 import torch 
 import torchvision
@@ -40,8 +39,6 @@ class TokenEmbeddings(nn.Module):
     '''
     def __init__(self, vocab_size, dimension):
         super(TokenEmbeddings, self).__init__(vocab_size, dimension)
-
-
 
 class TransformerEmbedding(nn.Module):
     def __init__(self, vocab_size, dimension, max_sequence, dropout):
@@ -214,7 +211,7 @@ class TransformerEncoder(nn.Module):
             x_ = encoder(x)
             x = x_
 
-        return x_
+        return x
         
 class TransfromerDecoder(nn.Module):
     def __init__(self, dec_vocab_size, dec_max_length, hidden_dim, num_heads, dimension, num_layers, decoder_mask, dropout_prob):
