@@ -1,0 +1,8 @@
+nayitangiye :: n- yi- tangiye :: na yi tangiye :: subj:1s obj:c4p,c9s
+nayitangiye :: n- yi- tanga -iye :: na yi tang iye :: subj:1s obj:c4p,c9s
+nayitangiye :: n- y- itanga -iye :: na y itang iye :: subj:1s obj:c4p,c9s
+nayitangiye :: n- y- i- tangiye :: na y i tangiye :: subj:1s obj:c4p,c9s reflexive
+nayitangiye :: n- y- i- tanga -iye :: na y i tang iye :: subj:1s obj:c4p,c9s reflexive
+nayitanze :: na- yi- tanze :: na yi tanze :: even obj:c4p,c9s
+nayitanze :: na- y- itanze :: na y itanze :: even obj:c4p,c9s
+nayitanze :: na- y- i- tanze :: na y i tanze :: even obj:c4p,c9s reflexive

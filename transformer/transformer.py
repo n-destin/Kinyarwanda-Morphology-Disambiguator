@@ -1,5 +1,5 @@
 '''
-@autheor: Destin Niyomufasha. Intelligence and Signal Processing Lab. 
+@Author: Destin Niyomufasha. Intelligence and Signal Processing Lab. 
 @KinyaBERT
 July 2024
 '''
@@ -27,8 +27,7 @@ class PositionalEmbddings(nn.Module):
         self.position_embeddings[:, 1::2] = torch.cos((self.positions) / 1000 ** (self.indices // self.dimesion))
     def forward(self, x):
         '''
-        dimsensions: 
-            (batch_size, sequence_length, dimension)
+        dimsensions: (batch_size, sequence_length, dimension)
         '''
         batch_size, seq_length = x.size()
         return self.position_embeddings[:seq_length, :]
@@ -228,46 +227,46 @@ class TransfromerDecoder(nn.Module):
         return x
 
 
-    class Transformer(nn.Module):
-        def __init__(self, enc_max_sequence_length, dimension, dec_max_length, dec_vocab_size, enc_vocab_size, hidden, num_heads, num_encoder_layers, num_decoder_layers, x_padding_value, y_padding_value, dropout):
-            super.__init__()
-            self.x_padding = x_padding_value
-            self.y_padding = y_padding_value
-    
-            self.encoder = TransformerEncoder(num_heads, 
-                                              enc_vocab_size, 
-                                              enc_max_sequence_length, 
-                                              dimension, 
-                                              hidden, 
-                                              num_encoder_layers, 
-                                              dropout)
-            
-            self.decoder = TransfromerDecoder(dec_vocab_size, 
-                                              dec_max_length, 
-                                              hidden, num_heads, 
-                                              dimension, 
-                                              num_decoder_layers,
-                                              dropout)
-            
-            self.projection_layer = nn.Linear(dimension, dec_vocab_size)
+class Transformer(nn.Module):
+    def __init__(self, enc_max_sequence_length, dimension, dec_max_length, dec_vocab_size, enc_vocab_size, hidden, num_heads, num_encoder_layers, num_decoder_layers, x_padding_value, y_padding_value, dropout):
+        super.__init__()
+        self.x_padding = x_padding_value
+        self.y_padding = y_padding_value
 
-        def forward(self, input_sequence, output_sequence):
-            input_mask = self.input_mask(input_sequence)
-            target_mask = self.traget_mask(output_sequence)
-            encoder_output = self.encoder(input_sequence, input_mask)
-            output = self.decoder(encoder_output, output_sequence, target_mask)
-            return nn.Softmax(self.projection_layer(output))
+        self.encoder = TransformerEncoder(num_heads, 
+                                            enc_vocab_size, 
+                                            enc_max_sequence_length, 
+                                            dimension, 
+                                            hidden, 
+                                            num_encoder_layers, 
+                                            dropout)
         
+        self.decoder = TransfromerDecoder(dec_vocab_size, 
+                                            dec_max_length, 
+                                            hidden, num_heads, 
+                                            dimension, 
+                                            num_decoder_layers,
+                                            dropout)
+        
+        self.projection_layer = nn.Linear(dimension, dec_vocab_size)
 
-        def input_mask(self, input):
-            mask = torch.tensor(input != self.x_padding).unsqueeze(1).unsqueeze(2)
-            return mask
+    def forward(self, input_sequence, output_sequence):
+        input_mask = self.input_mask(input_sequence)
+        target_mask = self.traget_mask(output_sequence)
+        encoder_output = self.encoder(input_sequence, input_mask)
+        output = self.decoder(encoder_output, output_sequence, target_mask)
+        return nn.Softmax(self.projection_layer(output))
+    
 
-        def traget_mask(self, target, device):
-            seq_length = target.shape[1]
-            padding_mask = torch.tensor(target != self.y_padding).unsqueeze(1).unsqueeze(2)
-            subsequent_mask = torch.tril(torch.ones(seq_length, seq_length)).to(device)
+    def input_mask(self, input):
+        mask = torch.tensor(input != self.x_padding).unsqueeze(1).unsqueeze(2)
+        return mask
 
-            target_mask = padding_mask + subsequent_mask
+    def traget_mask(self, target, device):
+        seq_length = target.shape[1]
+        padding_mask = torch.tensor(target != self.y_padding).unsqueeze(1).unsqueeze(2)
+        subsequent_mask = torch.tril(torch.ones(seq_length, seq_length)).to(device)
 
-            return target_mask
+        target_mask = padding_mask + subsequent_mask
+
+        return target_mask
