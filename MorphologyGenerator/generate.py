@@ -1,10 +1,17 @@
+'''
+@Author: Destin Niyomufasha
+Intelligence and Signal Processing Lab
+'''
 
-def read_words(files, output_file):
+import subprocess
+from transition import TransitionGraph
 
-    output = open(output_file, "w")
-    for input_file in files:
-        with open(input_file, "r") as file:
-            for line in file.readlines():
-                output.write(line.split(" ")[0].split("\t")[0] + "\n")
+graph = TransitionGraph("file here")
 
-read_words(["../kin-morph-fst/token-decomp/words1.txt", "../kin-morph-fst/token-decomp/words2.txt"], "output.txt")
+def generate_segmentations(bash_function, bin_file, inputFile, outputFile, input_command):
+    command = f'source applyFST.sh && {bash_function} {bin_file} {inputFile} {outputFile} "{input_command}"'
+    subprocess.run(['bash', '-c', command], capture_output=True, text=True)
+
+def generate_inflections()
+
+generate_segmentations("produce_segmentations", "mudasobwa.bin", "input_.txt", "segmentation.txt", "apply up")

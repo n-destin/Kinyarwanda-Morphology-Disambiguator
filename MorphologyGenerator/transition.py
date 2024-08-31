@@ -50,7 +50,7 @@ class TransitionGraph():
 
 
 
-    def build_transition_graph(self, inputFile):
+    def build_transition_graph(self, inputFile, segmentationFile):
         if inputFile == None:
             raise KeyError("Please provide a valid input file")
         with open(inputFile, "r") as segmentatioons:
@@ -84,12 +84,9 @@ class TransitionGraph():
                 appending.type = "prefix"
             else:
                 appending.type = "suffix"
-            if index < len(self.graph): # this means that if the index has already been visited before. meaning we have some morphemes there
+            if index < len(self.graph):
                 if appending in list(self.graph[index].morphemes):
                     new_morphemes = []
-                    # print("checking morphemes", index)
-                    # for morpheme in list(self.graph[index].morphemes):
-                    #     print(morpheme.count, morpheme.morpheme)
                     for changing in list(self.graph[index].morphemes):
                         if changing == appending:
                             changing.count += 1
@@ -121,7 +118,7 @@ class TransitionGraph():
                     new_current = current + "+" + morpheme.morpheme
             # print(new_current, morpheme.ending, morpheme.morpheme)
             if morpheme.ending and root_processed:
-                # print("morpheme ending", morpheme, new_current)
+                # print("morpheme ending", current, new_current)
                 morphemes.append(new_current)
             else:
                 # print("notn ending", morpheme, new_current)
@@ -142,6 +139,5 @@ class TransitionGraph():
 
 
 graph = TransitionGraph("testinggraph.txt")
-graph.print_transition_graph()
+# graph.print_transition_graph()
 returned = graph.get_inflections("reng")
-# print(returned, len(returned))
