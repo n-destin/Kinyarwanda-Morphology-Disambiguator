@@ -40,6 +40,8 @@ class TransitionGraph():
     def __init__(self, inputFile):
         self.graph = []
         self.starting_nodes = []
+        self.morpheme_mapping = {}
+        self.morpheme_count = -1
         self.build_transition_graph(inputFile)
 
     def softmax(self, nums):
@@ -50,13 +52,13 @@ class TransitionGraph():
 
 
 
-    def build_transition_graph(self, inputFile, segmentationFile):
+    def build_transition_graph(self, inputFile):
         if inputFile == None:
             raise KeyError("Please provide a valid input file")
         with open(inputFile, "r") as segmentatioons:
             for line in segmentatioons.readlines():
-                self.process_segmentation(line)
-        # normalize nodes
+                if line[0] == "+":
+                    self.process_segmentation(line)
         for node in self.graph:
             self.normalize_node(node)
     
@@ -64,6 +66,8 @@ class TransitionGraph():
         if node == None:
             return
         counts = [morpheme.count for morpheme in list(node.morphemes)]
+        counts_ = [count * 500 / max(counts) for count in counts]
+        counts = counts_
         probabilities = self.softmax(counts)
         new_list = list(node.morphemes)
         # print(probabilities, type(probabilities))
@@ -80,9 +84,13 @@ class TransitionGraph():
             appending_morpheme = segments[index] if segments[index].isupper() else 'root'
             real_morpheme = appending_morpheme[0:len(appending_morpheme) - 1] if appending_morpheme[len(appending_morpheme) - 1] == "\n" else appending_morpheme
             appending = Morpheme(real_morpheme, index == len(segments) - 1, appending_morpheme != real_morpheme)
-            if not root_processed:
+            if real_morpheme not in self.morpheme_mapping.keys():
+                self.morpheme_mapping[real_morpheme] = self.morpheme_count + 1
+                self.morpheme_count += 1
+            
+            if not root_processed and appending.morpheme != "root":
                 appending.type = "prefix"
-            else:
+            elif root_processed and appending.morpheme != "root":
                 appending.type = "suffix"
             if index < len(self.graph):
                 if appending in list(self.graph[index].morphemes):
@@ -92,7 +100,6 @@ class TransitionGraph():
                             changing.count += 1
                         new_morphemes.append(changing)
                     self.graph[index].morphemes = set(new_morphemes)
-
                 else:
                     self.graph[index].morphemes.add(appending) # this adds the appending
             else:
@@ -102,42 +109,45 @@ class TransitionGraph():
                 root_processed = True
 
     def get_inflection_helper(self, root, current, index, morphemes, root_processed):
+        if len(current.split("+")) >= 8:
+            return
+        if len(morphemes) > 5000:
+            return
         if index >= len(self.graph):
             if root_processed:
                 morphemes.append(current)
-            return 
-        for morpheme in self.graph[index].morphemes:
+            return
+        
+        past = root_processed
+        range = sorted(self.graph[index].morphemes, key=lambda morpheme: morpheme.probability)[:5] if index > 2 else self.graph[index].morphemes
+        for morpheme in range:
             new_current = ""
             if morpheme.morpheme == "root" and not root_processed:
                 new_current = current + "+" + root
                 root_processed = True
             else:
                 if not root_processed and morpheme.type == "prefix":
-                    new_current = current + "+" + morpheme.morpheme
+                    new_current = current + "+" + morpheme.morpheme if morpheme.morpheme not in current.split("+") else ""
                 elif root_processed and morpheme.type == "suffix":
-                    new_current = current + "+" + morpheme.morpheme
-            # print(new_current, morpheme.ending, morpheme.morpheme)
-            if morpheme.ending and root_processed:
-                # print("morpheme ending", current, new_current)
+                    new_current = current + "+" + morpheme.morpheme if morpheme.morpheme not in current.split("+") else ""
+            if morpheme.ending and root_processed and len(new_current) > 0:
                 morphemes.append(new_current)
             else:
-                # print("notn ending", morpheme, new_current)
-                self.get_inflection_helper(root, new_current, index + 1, morphemes, root_processed)
+                next = new_current if len(new_current) > 0 else current
+                self.get_inflection_helper(root, next, index + 1, morphemes, root_processed)
+                # self.get_inflection_helper(root, current, index + 1, morphemes, past)
 
 
     def get_inflections(self, root):
         inflections = []
         self.get_inflection_helper(root, "", 0, inflections, False)
-        return inflections
+        return set(inflections)
                 
 
     def print_transition_graph(self):
-        for item in self.graph:
+        for item in self.graph[1:]:
             print("\nmorphemes index : " + str(item.index_holder)  + "\n")
             for morpheme in item.morphemes:
-                print(morpheme)
-
+                print(morpheme.probability, morpheme.morpheme)
 
 graph = TransitionGraph("testinggraph.txt")
-# graph.print_transition_graph()
-returned = graph.get_inflections("reng")

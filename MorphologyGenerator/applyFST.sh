@@ -6,12 +6,10 @@ produce_segmentations() {
     local inputFile=$2
     local outputFile=$3
     local command_type=$4
-
-    echo "$command_type"
-
+    echo "Reched here"
     # Use the variable command_type to apply the correct command
     foma -e "load $binFile" -e "$command_type < $inputFile" -e "quit" > "$outputFile"
 }
 
 
-produce_segmentations "mudasobwa.bin" "input_.txt" "segmentation.txt" "apply up"
+produce_segmentations "mudasobwa.bin" "transition_input.txt" "transition_output.txt" "apply up"
