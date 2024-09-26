@@ -1,6 +1,6 @@
 Paper: [this paper]([url](https://arxiv.org/abs/2203.08459)) 
 ## Improvements made: 
-# 1. Morpohlogy disambiguation process: I
+# 1. Morphology disambiguation process: I
  - included neighborhood information in feature extraction
 
 # 2. Morphology Encoder:
