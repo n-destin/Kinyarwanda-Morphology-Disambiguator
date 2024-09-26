@@ -5,3 +5,4 @@ Paper: [this paper]([url](https://arxiv.org/abs/2203.08459))
 
 # 2. Morphology Encoder:
 - Embeddings were produced using a physics-inspired superposition of the morphemes embeddings (Tensorized embeddings)
+ss
