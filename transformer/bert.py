@@ -3,6 +3,10 @@ from torch import nn
 from transformer.transformer import MultiHeadAttention
 from transformer.transformer import TokenEmbeddings
 
+'''
+@Author: Destin Niyomufasha
+Intelligence and Signal Processing Lab
+'''
 
 class SegmentEmbedding(nn.Module):
     def __init__(self, embedding_dimension):

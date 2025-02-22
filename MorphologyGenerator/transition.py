@@ -6,6 +6,7 @@
 This transition graph is built to help in constructing possible inflection form a root word. 
 @It improves the morphogramephic graph proposed in the disambiguation of Kinyarwanda morphology analyzers paper 
 '''
+
 # import torch
 import math
 
